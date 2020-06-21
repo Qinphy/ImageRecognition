@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class RecognitionApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(RecognitionApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(RecognitionApplication.class, args);
+	}
 
 }
