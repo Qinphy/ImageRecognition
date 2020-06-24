@@ -69,7 +69,7 @@ public class BmpReader {
 
         bis.close();
 
-        Bmp bmp = new Bmp(name, data, counter);
+        Bmp bmp = new Bmp(name, data, counter, width, height);
         return bmp;
     }
 }

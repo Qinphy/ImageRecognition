@@ -10,5 +10,6 @@ import java.io.IOException;
  * @date: 2020/6/24 9:29
  */
 public interface BmpService {
-    void insert(String tableName, String rowKey, String colFamily, Bmp bmp) throws IOException;
+    void insert(Bmp bmp) throws IOException;
+    Bmp select(String rowKey) throws IOException;
 }

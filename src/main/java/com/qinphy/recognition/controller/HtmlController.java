@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author: Qinphy
- * @Description:
+ * @Description: 静态页面管理
  * @date: 2020/6/23 21:16
  */
 @Controller
@@ -24,5 +24,10 @@ public class HtmlController {
     @RequestMapping("/rdd")
     public String spark() {
         return "spark";
+    }
+
+    @RequestMapping("/add")
+    public String add() {
+        return "imgbox";
     }
 }

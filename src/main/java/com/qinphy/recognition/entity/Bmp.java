@@ -16,4 +16,6 @@ public class Bmp {
     private String name;
     private int[][] data;
     private int[] counter;
+    private int width;
+    private int height;
 }
