@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+
 /**
  * @author: Qinphy
  * @Description: This Hadoop's HDFS HadoopFileSystem methods.
