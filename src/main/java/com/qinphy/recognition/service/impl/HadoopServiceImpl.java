@@ -17,6 +17,7 @@ public class HadoopServiceImpl implements HadoopService {
     private HadoopFileSystem hadoopFileSystem;
     private final String hdfsPath = "/user/qinphy/images/";
 
+    
     @Override
     public String uploadHDFS(String path) throws IOException {
         Configuration conf  = new Configuration();
