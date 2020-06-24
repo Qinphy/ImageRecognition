@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Added</title>
+    <link rel="stylesheet" type="text/css" th:href="@{css/add.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{element-ui/lib/theme-chalk/index.css}"/>
+    <script th:src="@{js/vue.js}" type="text/javascript"></script>
+    <script th:src="@{element-ui/lib/index.js}"></script>
+</head>
+<body>
+
+<div id="app">
+    <div class="up-box">
+        <el-upload
+                drag
+                action="http://192.168.137.120/addup"
+                multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">只能上传bmp文件，且不超过500kb</div>
+        </el-upload>
+    </div>
+</div>
+<a class="footer" th:href="@{/index.html}">返回主页</a>
+<script th:src="@{js/add.js}"></script>
+</body>
+</html>

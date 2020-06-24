@@ -38,11 +38,11 @@
         </div>
     </div>
     <div class="result">
-        <div class="title">查找结果：</div>
+        <div class="title">查找结果：{{ imgName }}</div>
         <div class="result-img"></div>
-        <div class="title">图片名称：{{ imgName }} 查找耗时：{{ time }}</div>
     </div>
 </div>
+<a class="footer" th:href="@{/index.html}">返回主页</a>
 <script th:src="@{js/mapreduce.js}"></script>
 </body>
 </html>

@@ -7,18 +7,20 @@ body, html {
     width: 100vw;
     height: 100vh;
     min-width: 1100px;
+    font-family: 华文中宋;
 }
 
 .upload {
     float: left;
     width: 40vw;
     min-width: 450px;
-    height: 100vh;
+    height: calc(100vh - 60px);
 }
 
 .result {
     float: left;
     width: calc(60vw - 1px);
+    height: calc(100vh - 60px);
     min-width: 600px;
     border-left: 1px solid #373737;
 }
@@ -42,21 +44,28 @@ body, html {
 .result-img {
     width: 512px;
     height: 512px;
-    margin: 10px auto;
+    margin: 5px auto;
     border: 1px solid #373737;
-}
-
-.time {
-    width: 100%;
-    height: 30px;
-    font-size: 12px;
-    text-align: center;
-    line-height: 30px;
-    margin: 10px auto;
 }
 
 .btn_box {
     width: 200px;
     margin: 20px auto;
     align-items: center;
+}
+
+.footer {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    bottom: 0;
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    line-height: 60px;
+    cursor: pointer;
+    color: #000;
+    background-color: #FFB900;
+    font-size: 20px;
+    font-weight: bolder;
 }
