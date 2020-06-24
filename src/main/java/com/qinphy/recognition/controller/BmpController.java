@@ -17,11 +17,11 @@ import java.io.IOException;
 @Controller
 public class BmpController {
 
-    @RequestMapping("/upload")
+    @RequestMapping("/uploads")
     @ResponseBody
     public String uploads(@RequestParam(value = "file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        File upFile = new File("/uploads/" + fileName);
+        File upFile = new File("/home/qinphy/Recognition/uploads/" + fileName);
 
         if (!upFile.getParentFile().exists()) upFile.mkdirs();
 
