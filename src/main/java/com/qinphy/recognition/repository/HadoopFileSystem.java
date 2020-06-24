@@ -14,8 +14,9 @@ import java.io.IOException;
 public class HadoopFileSystem {
     private Configuration conf;
 
-    public HadoopFileSystem(Configuration conf) {
-        this.conf = conf;
+    public HadoopFileSystem() {
+        this.conf = new Configuration();
+        conf.set("fs.defaultFS", "hdfs://192.168.137.120:9000");
     }
     public boolean isExist(String path) throws IOException {
         FileSystem fs = FileSystem.get(conf);

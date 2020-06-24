@@ -2,7 +2,6 @@ package com.qinphy.recognition.service.impl;
 
 import com.qinphy.recognition.repository.HadoopFileSystem;
 import com.qinphy.recognition.service.HadoopService;
-import org.apache.hadoop.conf.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,12 +19,14 @@ public class HadoopServiceImpl implements HadoopService {
     
     @Override
     public String uploadHDFS(String path) throws IOException {
-        Configuration conf  = new Configuration();
-        hadoopFileSystem = new HadoopFileSystem(conf);
-        if (hadoopFileSystem.isEmpty(path)) {
+        int index = path.lastIndexOf('/');
+        String fileName = path.substring(index + 1);
+
+        hadoopFileSystem = new HadoopFileSystem();
+        if (hadoopFileSystem.isExist(path)) {
             return "exist";
         }
-        hadoopFileSystem.put(path, hdfsPath);
+        hadoopFileSystem.put(path, hdfsPath + fileName);
         return "success";
     }
 }
