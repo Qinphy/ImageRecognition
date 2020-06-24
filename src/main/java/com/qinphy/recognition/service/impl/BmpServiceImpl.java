@@ -21,8 +21,13 @@ public class BmpServiceImpl implements BmpService {
     private final String width = "width";
     private final String height = "height";
 
+    private void init() {
+        hBase.initHBase();
+    }
+
     @Override
     public void insert(Bmp bmp) throws IOException {
+        init();
         String rowKey = bmp.getName();
         byte[] data = changeToByte(bmp.getData());
         byte[] counter = changeToByte(bmp.getCounter());
@@ -37,6 +42,7 @@ public class BmpServiceImpl implements BmpService {
 
     @Override
     public Bmp select(String rowKey) throws IOException {
+        init();
         byte[] w = hBase.getCell(tableName, rowKey, width);
         byte[] h = hBase.getCell(tableName, rowKey, height);
         byte[] data = hBase.getCell(tableName, rowKey, image);

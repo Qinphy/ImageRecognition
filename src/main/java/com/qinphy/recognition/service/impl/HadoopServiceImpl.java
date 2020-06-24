@@ -2,6 +2,7 @@ package com.qinphy.recognition.service.impl;
 
 import com.qinphy.recognition.repository.HadoopFileSystem;
 import com.qinphy.recognition.service.HadoopService;
+import org.apache.hadoop.conf.Configuration;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -13,11 +14,13 @@ import java.io.IOException;
  */
 @Service
 public class HadoopServiceImpl implements HadoopService {
-    private HadoopFileSystem hadoopFileSystem = new HadoopFileSystem();
+    private HadoopFileSystem hadoopFileSystem;
     private final String hdfsPath = "/user/qinphy/images/";
 
     @Override
     public String uploadHDFS(String path) throws IOException {
+        Configuration conf  = new Configuration();
+        hadoopFileSystem = new HadoopFileSystem(conf);
         if (hadoopFileSystem.isEmpty(path)) {
             return "exist";
         }

@@ -49,8 +49,9 @@ public class BmpController {
 
         try {
             file.transferTo(upFile);
-            hadoopService.uploadHDFS(filePath);
-            return "success";
+            String result = hadoopService.uploadHDFS(filePath);
+            if (result.equals("success")) return "success";
+            else return "fail";
         } catch (IOException e) {
             e.printStackTrace();
             return "fail";

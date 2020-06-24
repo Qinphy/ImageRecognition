@@ -13,8 +13,8 @@ import java.io.IOException;
 public class HadoopFileSystem {
     private Configuration conf;
 
-    public HadoopFileSystem() {
-        this.conf = new Configuration();
+    public HadoopFileSystem(Configuration conf) {
+        this.conf = conf;
     }
 
     /**
