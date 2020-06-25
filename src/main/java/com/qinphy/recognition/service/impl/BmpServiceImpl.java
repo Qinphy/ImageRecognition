@@ -2,6 +2,7 @@ package com.qinphy.recognition.service.impl;
 
 import com.qinphy.recognition.entity.Bmp;
 import com.qinphy.recognition.repository.HBase;
+import com.qinphy.recognition.repository.HadoopFileSystem;
 import com.qinphy.recognition.service.BmpService;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,11 @@ import java.io.IOException;
  */
 @Service
 public class BmpServiceImpl implements BmpService {
+    // HDFS相关
+    private HadoopFileSystem hadoopFileSystem;
+    private final String hdfsPath = "/user/qinphy/images/";
+
+    // HBase相关
     private HBase hBase = new HBase();
     private final String tableName = "imageMR";
     private final String image = "image";
@@ -21,13 +27,21 @@ public class BmpServiceImpl implements BmpService {
     private final String width = "width";
     private final String height = "height";
 
-    private void init() {
-        hBase.initHBase();
+    @Override
+    public String uploadHDFS(String path) throws IOException {
+        int index = path.lastIndexOf('/');
+        String fileName = path.substring(index + 1);
+
+        hadoopFileSystem = new HadoopFileSystem();
+        if (hadoopFileSystem.isExist(path)) {
+            return "exist";
+        }
+        hadoopFileSystem.put(path, hdfsPath + fileName);
+        return "success";
     }
 
     @Override
     public void insert(Bmp bmp) throws IOException {
-        init();
         String rowKey = bmp.getName();
         byte[] data = changeToByte(bmp.getData());
         byte[] counter = changeToByte(bmp.getCounter());
@@ -42,7 +56,6 @@ public class BmpServiceImpl implements BmpService {
 
     @Override
     public Bmp select(String rowKey) throws IOException {
-        init();
         byte[] w = hBase.getCell(tableName, rowKey, width);
         byte[] h = hBase.getCell(tableName, rowKey, height);
         byte[] data = hBase.getCell(tableName, rowKey, image);

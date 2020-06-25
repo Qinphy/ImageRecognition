@@ -1,6 +1,8 @@
 package com.qinphy.recognition.controller;
 
-import com.qinphy.recognition.service.HadoopService;
+import com.qinphy.recognition.entity.Bmp;
+import com.qinphy.recognition.repository.BmpReader;
+import com.qinphy.recognition.service.BmpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,7 @@ import java.io.IOException;
 @Controller
 public class BmpController {
     @Autowired
-    private HadoopService hadoopService;
+    private BmpService bmpService;
 
     @RequestMapping("/uploads")
     @ResponseBody
@@ -44,12 +46,14 @@ public class BmpController {
         String fileName = file.getOriginalFilename();
         String filePath = "/home/qinphy/Recognition/images/" + fileName;
         File upFile = new File(filePath);
-
         if (!upFile.getParentFile().exists()) upFile.mkdirs();
 
+
         try {
+            Bmp bmp = BmpReader.readBmp(filePath);
+            bmpService.insert(bmp);
             file.transferTo(upFile);
-            String result = hadoopService.uploadHDFS(filePath);
+            String result = bmpService.uploadHDFS(filePath);
             if (result.equals("success")) return "success";
             else return "fail";
         } catch (IOException e) {

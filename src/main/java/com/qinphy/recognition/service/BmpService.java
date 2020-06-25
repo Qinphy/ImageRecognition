@@ -12,4 +12,5 @@ import java.io.IOException;
 public interface BmpService {
     void insert(Bmp bmp) throws IOException;
     Bmp select(String rowKey) throws IOException;
+    String uploadHDFS(String path) throws IOException;
 }

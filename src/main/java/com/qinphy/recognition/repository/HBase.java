@@ -20,7 +20,7 @@ public class HBase {
     private static Connection conn;
     private static Admin admin;
 
-    public void  initHBase() {
+    public HBase() {
         conf = HBaseConfiguration.create();
         conf.set("hbase.rootdir", "hdfs://Master:9000/hbase");
         try {

@@ -18,6 +18,13 @@ public class HadoopFileSystem {
         this.conf = new Configuration();
         conf.set("fs.defaultFS", "hdfs://192.168.137.120:9000");
     }
+
+    /**
+     * 判断文件/路径是否存在
+     * @param path 文件/路径
+     * @return true/false
+     * @throws IOException
+     */
     public boolean isExist(String path) throws IOException {
         FileSystem fs = FileSystem.get(conf);
         return fs.exists(new Path(path));
