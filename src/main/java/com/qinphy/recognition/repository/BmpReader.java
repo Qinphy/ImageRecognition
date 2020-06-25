@@ -57,14 +57,9 @@ public class BmpReader {
 
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
-                int blue = bis.read();
-                int green = bis.read();
-                int red = bis.read();
-                Color color = new Color(red, green, blue);
-                data[i][j] = color.getRGB();
+                data[i][j] = bis.read();
                 counter[data[i][j]]++;
             }
-            if (skiper != 0) bis.skip(skiper);
         }
 
         bis.close();

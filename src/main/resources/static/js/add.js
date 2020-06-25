@@ -4,17 +4,8 @@ var vm = new Vue({
 
     },
     methods: {
-        putImgFun: function (a) {
-            console.log(a.file);
-            axios({
-                url: "/addup",
-                method: "POST",
-                data: {
-                    'file': a.file
-                }
-            }).then(function (response) {
-                console.log(response);
-            });
+        imgFun: function (response, file, fileList) {
+            console.log(response);
         }
     }
 });

@@ -23,7 +23,7 @@ public class BmpServiceImpl implements BmpService {
     private HBase hBase = new HBase();
     private final String tableName = "imageMR";
     private final String image = "image";
-    private final String statistic = "statistic";
+    private final String statistic = "counter";
     private final String width = "width";
     private final String height = "height";
 

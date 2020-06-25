@@ -50,10 +50,13 @@ public class BmpController {
 
 
         try {
-            Bmp bmp = BmpReader.readBmp(filePath);
-            bmpService.insert(bmp);
             file.transferTo(upFile);
+            System.out.println("upload to linux!");
+            Bmp bmp = BmpReader.readBmp(filePath);
             String result = bmpService.uploadHDFS(filePath);
+            System.out.println("upload to HDFS!");
+            bmpService.insert(bmp);
+            System.out.println("upload to HBase!");
             if (result.equals("success")) return "success";
             else return "fail";
         } catch (IOException e) {
