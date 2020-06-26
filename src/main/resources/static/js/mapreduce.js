@@ -46,6 +46,7 @@ var vm = new Vue({
         },
         successHandler: function (response, file, fileList) {
             this.upImage = response;
+            this.imgName = response;
         }
     }
 });

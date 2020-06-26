@@ -79,6 +79,8 @@ public class BmpServiceImpl implements BmpService {
     public String AllSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException {
         String hdfs = MapReduce.AllSearch(bmp);
         List<String> list = hadoopFileSystem.cat(hdfs + "/part-r-00000");
+
+        if (list.size() == 0) return "fail";
         String name = list.get(0);
         System.out.println(name);
         hadoopFileSystem.rm(hdfs);
@@ -87,7 +89,7 @@ public class BmpServiceImpl implements BmpService {
 
     @Override
     public List<String> PartSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException {
-        String hdfs = MapReduce.AllSearch(bmp);
+        String hdfs = MapReduce.PartSearch(bmp);
         List<String> list = hadoopFileSystem.cat(hdfs + "/part-r-00000");
         hadoopFileSystem.rm(hdfs);
         return list;

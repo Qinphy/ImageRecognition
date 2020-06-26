@@ -29,7 +29,7 @@ public class BmpController {
     private final String imageUrl = "http://192.168.137.120/images/";
 
     /**
-     * 上传图片，临时的，/home/qinphy/Recognition/images/
+     * 上传图片，临时的，/home/qinphy/Recognition/uploads/
      * @param file 前端传来的图片
      * @return "fail":失败，fileName:上传的文件名称，成功！
      */
@@ -93,6 +93,7 @@ public class BmpController {
             Bmp bmp = BmpReader.readBmp(filePath);
             String file = bmpService.AllSearch(bmp);
             if ("".equals(file)) return "fail";
+            else if ("fail".equals(file)) return "fail";
             else return imageUrl + file;
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,7 +113,7 @@ public class BmpController {
     @RequestMapping("/partSearch/{name}")
     @ResponseBody
     public String PartSearch(@PathVariable("name") String name) {
-        String filePath = imgPath + name;
+        String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
             List<String> list = bmpService.PartSearch(bmp);

@@ -44,7 +44,7 @@ body, html {
 .result-img {
     width: 512px;
     height: 512px;
-    margin: 5px auto;
+    margin-left: 100px;
     border: 1px solid #373737;
 }
 
