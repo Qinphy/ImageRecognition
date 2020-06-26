@@ -3,6 +3,7 @@ package com.qinphy.recognition.service;
 import com.qinphy.recognition.entity.Bmp;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author: Qinphy
@@ -13,4 +14,6 @@ public interface BmpService {
     void insert(Bmp bmp) throws IOException;
     Bmp select(String rowKey) throws IOException;
     String uploadHDFS(String path) throws IOException;
+    String AllSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException;
+    List<String> PartSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException;
 }

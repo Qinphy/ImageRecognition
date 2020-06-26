@@ -2,8 +2,13 @@ package com.qinphy.recognition.repository;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -125,5 +130,25 @@ public class HadoopFileSystem {
         FileSystem fs = FileSystem.get(conf);
         Path hdfs = new Path(path);
         return fs.delete(hdfs, true);
+    }
+
+    /**
+     * 读取HDFS中文件内容
+     * @param hdfsFilePath hdfs文件路径
+     * @return List<String>每一行的List
+     */
+    public List<String> cat(String hdfsFilePath) throws IOException {
+        Path hdfsPath = new Path(hdfsFilePath);
+        FileSystem fs = FileSystem.get(conf);
+        FSDataInputStream in = fs.open(hdfsPath);
+        BufferedReader d = new BufferedReader(new InputStreamReader(in));
+
+        List<String> list = new ArrayList<String>();
+        String line;
+        while((line = d.readLine()) != null) {
+            list.add(line);
+        }
+        fs.close();
+        return list;
     }
 }
