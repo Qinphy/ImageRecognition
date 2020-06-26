@@ -16,8 +16,7 @@
             <el-upload
                     drag
                     action="http://192.168.137.120/uploads/"
-                    :on-success="successHandler"
-                    multiple>
+                    :on-success="successHandler">
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <div class="el-upload__tip" slot="tip">只能上传bmp文件，且不超过500kb</div>

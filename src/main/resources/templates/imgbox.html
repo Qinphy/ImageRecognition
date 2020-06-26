@@ -10,12 +10,12 @@
     <script th:src="@{js/axios.js}"></script>
 </head>
 <body>
-
+<a class="header" th:href="@{/index.html}">返回主页</a>
 <div id="app">
     <div class="up-box">
         <el-upload
                 drag
-                action="http://192.168.137.120/addup"
+                action="http://192.168.137.120/addImage"
                 :on-success="imgFun"
                 multiple>
             <i class="el-icon-upload"></i>
@@ -24,7 +24,7 @@
         </el-upload>
     </div>
 </div>
-<a class="footer" th:href="@{/index.html}">返回主页</a>
+
 <script th:src="@{js/add.js}"></script>
 </body>
 </html>

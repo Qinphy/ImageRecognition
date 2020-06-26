@@ -2,8 +2,9 @@ var vm = new Vue({
     el: "#app",
     data() {
         return {
+            upImage: '',
             imgName: '',
-            imgUrl: 'http://192.168.137.120/home/qinphy/Recognition/images/15.bmp',
+            imgUrl: 'http://192.168.137.120/images/0.jpg',
         }
     },
     methods: {
@@ -11,9 +12,16 @@ var vm = new Vue({
             if (this.imgName === '') {
                 alert("图片还没上传！")
             } else {
-                axios.get('/allSearch/' + this.imgName + ".bmp")
+                axios.get('/allSearch/' + this.upImage + ".bmp")
                     .then(function (response) {
-                        vm.imgUrl = response.data;
+                        if (response.data === "fail") {
+                            vm.$notify.error ({
+                                title: '错误',
+                                message: '片库找不到！'
+                            });
+                        } else {
+                            vm.imgUrl = response.data;
+                        }
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -21,13 +29,23 @@ var vm = new Vue({
             }
         },
         partFun: function () {
-            alert("局部搜索");
+            if (this.imgName === '') {
+                alert("图片还没上传！")
+            } else {
+                axios.get('/partSearch/' + this.upImage + ".bmp")
+                    .then(function (response) {
+                        console.log(response.data);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
         },
         vagueFun: function () {
             alert("模糊搜索");
         },
         successHandler: function (response, file, fileList) {
-            this.imgName = response;
+            this.upImage = response;
         }
     }
 });

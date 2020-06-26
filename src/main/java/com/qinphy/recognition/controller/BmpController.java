@@ -24,10 +24,15 @@ import java.util.List;
 public class BmpController {
     @Autowired
     private BmpService bmpService;
-    private final String imgPath = "/home/qinphy/Recognition/images/";
-    private final String uploadPath = "/home/qinphy/Recognition/uploads/";
-    private final String imageUrl = "http://192.168.137.120/home/qinphy/Recognition/images/";
+    private final String imgPath = "/images/";
+    private final String uploadPath = "/uploads/";
+    private final String imageUrl = "http://192.168.137.120/images/";
 
+    /**
+     * 上传图片，临时的，/home/qinphy/Recognition/images/
+     * @param file 前端传来的图片
+     * @return "fail":失败，fileName:上传的文件名称，成功！
+     */
     @RequestMapping("/uploads")
     @ResponseBody
     public String uploads(@RequestParam(value = "file") MultipartFile file) {
@@ -45,7 +50,12 @@ public class BmpController {
         }
     }
 
-    @RequestMapping("/addup")
+    /**
+     * 向图片库添加图片
+     * @param file 前端传来的图片
+     * @return "fail":失败，fileName:文件名称
+     */
+    @RequestMapping("/addImage")
     @ResponseBody
     public String uploadAdd(@RequestParam(value = "file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
@@ -53,15 +63,15 @@ public class BmpController {
         File upFile = new File(filePath);
         if (!upFile.getParentFile().exists()) upFile.mkdirs();
 
-
         try {
             file.transferTo(upFile);
-            System.out.println("upload to linux!");
             Bmp bmp = BmpReader.readBmp(filePath);
             String result = bmpService.uploadHDFS(filePath);
-            System.out.println("upload to HDFS!");
-            bmpService.insert(bmp);
-            System.out.println("upload to HBase!");
+
+            Bmp res = bmpService.select(bmp.getName());
+            if (res == null) bmpService.insert(bmp);
+            else return "exist";
+
             if (result.equals("success")) return fileName;
             else return "fail";
         } catch (IOException e) {
@@ -70,6 +80,11 @@ public class BmpController {
         }
     }
 
+    /**
+     * 全图搜索
+     * @param name 上传的图片
+     * @return "fail":失败，fileName:成功
+     */
     @RequestMapping("/allSearch/{name}")
     @ResponseBody
     public String AllSaerch(@PathVariable("name") String name) {
@@ -89,6 +104,11 @@ public class BmpController {
         return "fail";
     }
 
+    /**
+     * 局部搜索
+     * @param name 上传的图片
+     * @return "fail":失败，fileName:成功
+     */
     @RequestMapping("/partSearch/{name}")
     @ResponseBody
     public String PartSearch(@PathVariable("name") String name) {

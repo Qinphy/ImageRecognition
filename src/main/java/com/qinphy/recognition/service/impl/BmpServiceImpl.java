@@ -61,6 +61,7 @@ public class BmpServiceImpl implements BmpService {
     @Override
     public Bmp select(String rowKey) throws IOException {
         byte[] w = hBase.getCell(tableName, rowKey, width);
+        if (w == null) return null;
         byte[] h = hBase.getCell(tableName, rowKey, height);
         byte[] data = hBase.getCell(tableName, rowKey, image);
         byte[] counter = hBase.getCell(tableName, rowKey, statistic);

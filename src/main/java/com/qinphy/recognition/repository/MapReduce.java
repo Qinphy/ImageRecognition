@@ -6,7 +6,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -144,12 +143,12 @@ public class MapReduce {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        String hdfsPath = "/user/qinphy/output";
+        String hdfsPath = "/user/qinphy/all";
         Path path = new Path(hdfsPath);
         FileOutputFormat.setOutputPath(job, path);
         MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
 
-        int ex = job.waitForCompletion(true)==true?0:1;
+        int ex = job.waitForCompletion(true) == true ? 0 : 1;
         System.out.println("exit = " + ex);
         return hdfsPath;
     }
@@ -168,17 +167,16 @@ public class MapReduce {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        String path = "/user/qinphy/output";
+        String path = "/user/qinphy/part";
         Path jPath = new Path(path);
         FileOutputFormat.setOutputPath(job, jPath);
         MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
-        int ex = job.waitForCompletion(true)==true?0:1;
+        int ex = job.waitForCompletion(true) == true ? 0 : 1;
         System.out.println(ex);
         return path;
     }
 
     private static Job connect() throws IOException {
-//        Configuration conf = HBaseConfiguration.create();
         Configuration conf  = new Configuration();
         conf.set("fs.defaultFS", "hdfs://192.168.137.120:9000");
         conf.set("hbase.zookeeper.quorum", "Master,Worker1,Worker2");
