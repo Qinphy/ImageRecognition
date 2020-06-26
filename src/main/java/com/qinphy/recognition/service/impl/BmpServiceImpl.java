@@ -9,6 +9,7 @@ import com.qinphy.recognition.util.Change;
 import org.apache.hadoop.fs.Path;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import java.util.List;
 @Service
 public class BmpServiceImpl implements BmpService {
     // HDFS相关
-    private HadoopFileSystem hadoopFileSystem;
+    private HadoopFileSystem hadoopFileSystem = new HadoopFileSystem();
     private final String hdfsPath = "/user/qinphy/images/";
 
     // HBase相关
@@ -36,7 +37,6 @@ public class BmpServiceImpl implements BmpService {
         int index = path.lastIndexOf('/');
         String fileName = path.substring(index + 1);
 
-        hadoopFileSystem = new HadoopFileSystem();
         if (hadoopFileSystem.isExist(path)) {
             return "exist";
         }
@@ -76,19 +76,19 @@ public class BmpServiceImpl implements BmpService {
 
     @Override
     public String AllSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException {
-        String hdfsPath = MapReduce.AllSearch(bmp);
-        List<String> list = hadoopFileSystem.cat(hdfsPath);
-
+        String hdfs = MapReduce.AllSearch(bmp);
+        List<String> list = hadoopFileSystem.cat(hdfs + "/part-r-00000");
         String name = list.get(0);
-
+        System.out.println(name);
+        hadoopFileSystem.rm(hdfs);
         return name;
     }
 
     @Override
     public List<String> PartSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException {
-        String hdfsPath = MapReduce.PartSearch(bmp);
-        List<String> list = hadoopFileSystem.cat(hdfsPath);
-
+        String hdfs = MapReduce.AllSearch(bmp);
+        List<String> list = hadoopFileSystem.cat(hdfs + "/part-r-00000");
+        hadoopFileSystem.rm(hdfs);
         return list;
     }
 }

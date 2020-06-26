@@ -25,18 +25,20 @@ public class BmpController {
     @Autowired
     private BmpService bmpService;
     private final String imgPath = "/home/qinphy/Recognition/images/";
+    private final String uploadPath = "/home/qinphy/Recognition/uploads/";
+    private final String imageUrl = "http://192.168.137.120/home/qinphy/Recognition/images/";
 
     @RequestMapping("/uploads")
     @ResponseBody
     public String uploads(@RequestParam(value = "file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        File upFile = new File("/home/qinphy/Recognition/uploads/" + fileName);
+        File upFile = new File(uploadPath + fileName);
 
         if (!upFile.getParentFile().exists()) upFile.mkdirs();
 
         try {
             file.transferTo(upFile);
-            return "success";
+            return fileName;
         } catch (IOException e) {
             e.printStackTrace();
             return "fail";
@@ -71,12 +73,12 @@ public class BmpController {
     @RequestMapping("/allSearch/{name}")
     @ResponseBody
     public String AllSaerch(@PathVariable("name") String name) {
-        String filePath = imgPath + name;
+        String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
             String file = bmpService.AllSearch(bmp);
             if ("".equals(file)) return "fail";
-            else return imgPath + file;
+            else return imageUrl + file;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

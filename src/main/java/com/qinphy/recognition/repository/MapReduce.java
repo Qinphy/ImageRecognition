@@ -15,9 +15,13 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,15 +50,17 @@ public class MapReduce {
                 if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
                         && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
                     byte[] b = CellUtil.cloneValue(cell);
-                    int[] counter = Change.changeToInt(b, 256);
                     int[] img = bmp.getCounter();
+                    byte[] imgCounter = Change.changeToByte(img);
+
                     boolean f = true;
-                    for (int i = 0; i < img.length; i++) {
-                        if (counter[i] != img[i]) {
+                    for (int i = 0; i < b.length; i++) {
+                        if (b[i] != imgCounter[i]) {
                             f = false;
                             break;
                         }
                     }
+
                     if (f) {
                         byte[] a = CellUtil.cloneRow(cell);
                         String name = Change.changeToString(a);
@@ -138,11 +144,13 @@ public class MapReduce {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        String hdfsPath = "/user/qinphy/output/all.txt";
+        String hdfsPath = "/user/qinphy/output";
         Path path = new Path(hdfsPath);
         FileOutputFormat.setOutputPath(job, path);
+        MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
 
-        System.exit(job.waitForCompletion(true)==true?0:1);
+        int ex = job.waitForCompletion(true)==true?0:1;
+        System.out.println("exit = " + ex);
         return hdfsPath;
     }
 
@@ -160,17 +168,19 @@ public class MapReduce {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        String hdfsPath = "/user/qinphy/output/part.txt";
-        Path path = new Path(hdfsPath);
-        FileOutputFormat.setOutputPath(job, path);
-
-        System.exit(job.waitForCompletion(true)==true?0:1);
-
-        return hdfsPath;
+        String path = "/user/qinphy/output";
+        Path jPath = new Path(path);
+        FileOutputFormat.setOutputPath(job, jPath);
+        MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
+        int ex = job.waitForCompletion(true)==true?0:1;
+        System.out.println(ex);
+        return path;
     }
 
     private static Job connect() throws IOException {
-        Configuration conf = HBaseConfiguration.create();
+//        Configuration conf = HBaseConfiguration.create();
+        Configuration conf  = new Configuration();
+        conf.set("fs.defaultFS", "hdfs://192.168.137.120:9000");
         conf.set("hbase.zookeeper.quorum", "Master,Worker1,Worker2");
         conf.set("hbase.zookeeper.property.clientPort", "2181");
         Job job = Job.getInstance(conf,"SearchPart");

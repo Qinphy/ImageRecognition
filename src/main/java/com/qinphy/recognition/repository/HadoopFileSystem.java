@@ -146,6 +146,11 @@ public class HadoopFileSystem {
         List<String> list = new ArrayList<String>();
         String line;
         while((line = d.readLine()) != null) {
+            while(!Character.isUpperCase(line.charAt(0))
+                    && !Character.isDigit(line.charAt(0))
+                    && !Character.isLowerCase(line.charAt(0))) {
+                line = line.substring(1);
+            }
             list.add(line);
         }
         fs.close();

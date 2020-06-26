@@ -1,8 +1,9 @@
 var vm = new Vue({
     el: "#app",
-    data: {
-        imgName: "1.bmp",
-        time: "0.1s"
+    data() {
+        return {
+            imgName: ''
+        }
     },
     methods: {
         allFun: function () {
