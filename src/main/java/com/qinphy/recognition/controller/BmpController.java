@@ -24,8 +24,8 @@ import java.util.List;
 public class BmpController {
     @Autowired
     private BmpService bmpService;
-    private final String imgPath = "/images/";
-    private final String uploadPath = "/uploads/";
+    private final String imgPath = "/home/qinphy/Recognition/images/";
+    private final String uploadPath = "/home/qinphy/Recognition/uploads/";
     private final String imageUrl = "http://192.168.137.120/images/";
 
     /**
@@ -66,14 +66,10 @@ public class BmpController {
         try {
             file.transferTo(upFile);
             Bmp bmp = BmpReader.readBmp(filePath);
-            String result = bmpService.uploadHDFS(filePath);
 
-            Bmp res = bmpService.select(bmp.getName());
-            if (res == null) bmpService.insert(bmp);
-            else return "exist";
+            bmpService.insert(bmp);
 
-            if (result.equals("success")) return fileName;
-            else return "fail";
+            return fileName;
         } catch (IOException e) {
             e.printStackTrace();
             return "fail";
