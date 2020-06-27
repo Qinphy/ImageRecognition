@@ -116,6 +116,8 @@ public class BmpController {
             List<String> list = bmpService.PartSearch(bmp);
 
             String file = list.get(0);
+
+            System.out.println(file);
             return file;
         } catch (IOException e) {
             e.printStackTrace();

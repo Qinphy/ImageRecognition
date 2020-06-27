@@ -17,6 +17,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
@@ -92,33 +93,39 @@ public class MapReduce {
         }
     }
 
-    private static class PartMap extends Mapper<BytesWritable, Text, BytesWritable, Text> {
+    private static class PartMap extends TableMapper<ImmutableBytesWritable, Text> {
 
         @Override
-        public void map(BytesWritable key, Text value, Context context) throws IOException, InterruptedException {
+        public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
             int splitWidth = bmp.getWidth();
             int splitHeight = bmp.getHeight();
-            String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
+            // String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
+            // 遍历表格的每一个单元
+            for(Cell cell : value.rawCells()){
+                // 找到对应的单元
+                if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
+                        && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
+                    byte[] b = CellUtil.cloneValue(cell);
 
-            byte[] keys = key.getBytes();
-            byte[] data = Arrays.copyOfRange(keys, 54, keys.length);
+                    List<Split> list = Change.split(b, 512, 512, splitWidth, splitHeight);
 
-            List<Split> list = Change.split(data, 512, 512, splitWidth, splitHeight);
-
-            for (int i = 0; i < list.size(); i++) {
-                Split s = list.get(i);
-                if (s.getSum() == sum) {
-                    context.write(new BytesWritable(s.getData()), new Text(fileName));
+                    for(int i = 0; i < list.size(); i++) {
+                        Split s= list.get(i);
+                        if (s.getSum() == sum) {
+                            String fileName = Change.changeToString(CellUtil.cloneRow(cell));
+                            context.write(new ImmutableBytesWritable(s.getData()), new Text(fileName));
+                        }
+                    }
                 }
             }
         }
     }
 
-    private static class PartReduce extends Reducer<BytesWritable, Text, Text, NullWritable> {
+    private static class PartReduce extends Reducer<ImmutableBytesWritable, Text, Text, NullWritable> {
 
         @Override
-        public void reduce(BytesWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            byte[] data = key.getBytes();
+        public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            byte[] data = key.get();
             for (int i = 0; i < data.length; i++) {
                 if (img[i] != data[i]) return;
             }
@@ -144,7 +151,7 @@ public class MapReduce {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        String hdfsPath = "/user/qinphy/all";
+        String hdfsPath = "/user/qinphy/output/all";
         Path path = new Path(hdfsPath);
         FileOutputFormat.setOutputPath(job, path);
         MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
@@ -167,15 +174,16 @@ public class MapReduce {
         sum = bmpSum;
 
         Job job = connect();
+        List<Scan> list = getList();
 
-        job.setJarByClass(PartMap.class);
-        job.setMapOutputKeyClass(BytesWritable.class);
+        TableMapReduceUtil.initTableMapperJob(list, PartMap.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
+        job.setMapOutputKeyClass(ImmutableBytesWritable.class);
         job.setMapOutputValueClass(Text.class);
         job.setReducerClass(PartReduce.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(NullWritable.class);
 
-        String path = "/user/qinphy/part";
+        String path = "/user/qinphy/output/part";
         Path jPath = new Path(path);
         FileOutputFormat.setOutputPath(job, jPath);
         MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
