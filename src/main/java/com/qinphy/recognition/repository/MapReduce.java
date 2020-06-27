@@ -80,7 +80,7 @@ public class MapReduce {
         }
     }
 
-    private static class PartMap extends TableMapper<DoubleWritable, ImmutableBytesWritable> {
+    private static class PartMap extends TableMapper<ImmutableBytesWritable, ImmutableBytesWritable> {
 
         @Override
         public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
@@ -91,27 +91,19 @@ public class MapReduce {
                 if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
                         && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
                     byte[] b = CellUtil.cloneValue(cell);
-                    // 拆分图片
-                    int[][] data = Change.changeToInt(b, 512, 512);
-                    List<int[][]> list = Change.getPart(data, bmp.getWidth(), bmp.getHeight());
+                    // 拆分图片,需要优化
+                    List<byte[]> list = Change.split(b, 512, 512, bmp.getWidth(), bmp.getHeight());
+
                     // 拆分后的part作为一个map
                     for (int i = 0; i < list.size(); i++) {
 
-                        int[][] img = list.get(i);
-                        int cnt = 0;
-                        int[][] bmpImg = bmp.getData();
-                        for (int j = 0; j < img.length; i++) {
-                            for (int k = 0; k < img[j].length; k++) {
-                                if (img[j][k] == bmpImg[j][k]) cnt++;
-                            }
-                        }
-                        double rate = 1.0 * cnt / (bmp.getWidth() * bmp.getHeight());
-                        DoubleWritable dw = new DoubleWritable(rate);
+                        byte[] img = list.get(i);
+                        ImmutableBytesWritable part = new ImmutableBytesWritable(img);
 
                         byte[] a = CellUtil.cloneRow(cell);
                         ImmutableBytesWritable rowKey = new ImmutableBytesWritable(a);
 
-                        context.write(dw, rowKey);
+                        context.write(part, rowKey);
                     }
 
                 }
@@ -119,12 +111,23 @@ public class MapReduce {
         }
     }
 
-    private static class PartReduce extends Reducer<DoubleWritable, ImmutableBytesWritable, Text, Text> {
+    private static class PartReduce extends Reducer<ImmutableBytesWritable, ImmutableBytesWritable, Text, Text> {
 
         @Override
-        public void reduce(DoubleWritable key, Iterable<ImmutableBytesWritable> values, Context context) throws IOException, InterruptedException {
+        public void reduce(ImmutableBytesWritable key, Iterable<ImmutableBytesWritable> values, Context context) throws IOException, InterruptedException {
             for (ImmutableBytesWritable value: values) {
-                context.write(new Text(key.toString()), new Text(Bytes.toString(value.get())));
+                byte[] b = key.get();
+                byte[] img = Change.changeToByte(bmp.getData());
+
+                boolean f = true;
+                for (int i = 0; i < b.length; i++) {
+                    if (b[i] != img[i]) {
+                        f = false;
+                        break;
+                    }
+                }
+
+                if (f) context.write(new Text(""), new Text(Bytes.toString(value.get())));
             }
         }
     }
@@ -161,7 +164,7 @@ public class MapReduce {
         List<Scan> list = getList();
 
         TableMapReduceUtil.initTableMapperJob(list, PartMap.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
-        job.setMapOutputKeyClass(DoubleWritable.class);
+        job.setMapOutputKeyClass(ImmutableBytesWritable.class);
         job.setMapOutputValueClass(ImmutableBytesWritable.class);
         job.setReducerClass(PartReduce.class);
         job.setOutputKeyClass(Text.class);

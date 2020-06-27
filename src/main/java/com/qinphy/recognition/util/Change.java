@@ -156,4 +156,23 @@ public class Change {
         }
         return list;
     }
+
+    public static List<byte[]> split(byte[] by, int width, int height, int w, int h) {
+        List<byte[]> list = new ArrayList<byte[]>();
+        width *= 4;
+        w *= 4;
+
+        for (int i = 0; i < height - h + 1; i++) {
+            for (int j = 0; j < width - w + 1; j += 4) {
+                byte[] b = new byte[h * w];
+                for (int ii = 0; ii < h; ii++) {
+                    for (int jj = 0; jj < w; jj++) {
+                        b[ii * w + jj] = by[(i + ii) * width + jj + j];
+                    }
+                }
+                list.add(b);
+            }
+        }
+        return list;
+    }
 }
