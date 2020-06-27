@@ -1,6 +1,7 @@
 package com.qinphy.recognition.repository;
 
 import com.qinphy.recognition.entity.Bmp;
+import com.qinphy.recognition.entity.Split;
 import com.qinphy.recognition.util.Change;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -12,18 +13,23 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,10 +38,18 @@ import java.util.List;
  * @date: 2020/6/26 9:51
  */
 public class MapReduce {
+    // 需要搜索的图像
     private static Bmp bmp;
+
+    // AllSearch参数
     private static final String tableName = "imageMR";
     private static String colFamily;
     private static final String col = "";
+    private static byte[] imgCounter;
+
+    // PartSearch参数
+    private static int sum = 0;
+    private static byte[] img;
 
 
     private static class AllMap extends TableMapper<Text, Text> {
@@ -49,8 +63,6 @@ public class MapReduce {
                 if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
                         && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
                     byte[] b = CellUtil.cloneValue(cell);
-                    int[] img = bmp.getCounter();
-                    byte[] imgCounter = Change.changeToByte(img);
 
                     boolean f = true;
                     for (int i = 0; i < b.length; i++) {
@@ -80,54 +92,38 @@ public class MapReduce {
         }
     }
 
-    private static class PartMap extends TableMapper<ImmutableBytesWritable, ImmutableBytesWritable> {
+    private static class PartMap extends Mapper<BytesWritable, Text, BytesWritable, Text> {
 
         @Override
-        public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
+        public void map(BytesWritable key, Text value, Context context) throws IOException, InterruptedException {
+            int splitWidth = bmp.getWidth();
+            int splitHeight = bmp.getHeight();
+            String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
 
-            // 遍历表格的每一个单元
-            for(Cell cell : value.rawCells()) {
-                // 找到对应的单元
-                if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
-                        && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
-                    byte[] b = CellUtil.cloneValue(cell);
-                    // 拆分图片,需要优化
-                    List<byte[]> list = Change.split(b, 512, 512, bmp.getWidth(), bmp.getHeight());
+            byte[] keys = key.getBytes();
+            byte[] data = Arrays.copyOfRange(keys, 54, keys.length);
 
-                    // 拆分后的part作为一个map
-                    for (int i = 0; i < list.size(); i++) {
+            List<Split> list = Change.split(data, 512, 512, splitWidth, splitHeight);
 
-                        byte[] img = list.get(i);
-                        ImmutableBytesWritable part = new ImmutableBytesWritable(img);
-
-                        byte[] a = CellUtil.cloneRow(cell);
-                        ImmutableBytesWritable rowKey = new ImmutableBytesWritable(a);
-
-                        context.write(part, rowKey);
-                    }
-
+            for (int i = 0; i < list.size(); i++) {
+                Split s = list.get(i);
+                if (s.getSum() == sum) {
+                    context.write(new BytesWritable(s.getData()), new Text(fileName));
                 }
             }
         }
     }
 
-    private static class PartReduce extends Reducer<ImmutableBytesWritable, ImmutableBytesWritable, Text, Text> {
+    private static class PartReduce extends Reducer<BytesWritable, Text, Text, NullWritable> {
 
         @Override
-        public void reduce(ImmutableBytesWritable key, Iterable<ImmutableBytesWritable> values, Context context) throws IOException, InterruptedException {
-            for (ImmutableBytesWritable value: values) {
-                byte[] b = key.get();
-                byte[] img = Change.changeToByte(bmp.getData());
-
-                boolean f = true;
-                for (int i = 0; i < b.length; i++) {
-                    if (b[i] != img[i]) {
-                        f = false;
-                        break;
-                    }
-                }
-
-                if (f) context.write(new Text(""), new Text(Bytes.toString(value.get())));
+        public void reduce(BytesWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            byte[] data = key.getBytes();
+            for (int i = 0; i < data.length; i++) {
+                if (img[i] != data[i]) return;
+            }
+            for (Text text: values) {
+                context.write(text, NullWritable.get());
             }
         }
     }
@@ -135,6 +131,8 @@ public class MapReduce {
     public static String AllSearch(Bmp myBmp) throws IOException, ClassNotFoundException, InterruptedException {
         bmp = myBmp;
         colFamily = "counter";
+        int[] img = bmp.getCounter();
+        imgCounter = Change.changeToByte(img);
 
         Job job = connect();
         List<Scan> list = getList();
@@ -159,16 +157,23 @@ public class MapReduce {
     public static String PartSearch(Bmp myBmp) throws IOException, ClassNotFoundException, InterruptedException {
         bmp = myBmp;
         colFamily = "image";
+        img = Change.changeToByte(bmp.getData());
+
+        byte[] bmpData = Change.changeToByte(bmp.getData());
+        int bmpSum = 0;
+        for (int i = 0; i < bmpData.length; i++) {
+            bmpSum += bmpData[i];
+        }
+        sum = bmpSum;
 
         Job job = connect();
-        List<Scan> list = getList();
 
-        TableMapReduceUtil.initTableMapperJob(list, PartMap.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
-        job.setMapOutputKeyClass(ImmutableBytesWritable.class);
-        job.setMapOutputValueClass(ImmutableBytesWritable.class);
+        job.setJarByClass(PartMap.class);
+        job.setMapOutputKeyClass(BytesWritable.class);
+        job.setMapOutputValueClass(Text.class);
         job.setReducerClass(PartReduce.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(NullWritable.class);
 
         String path = "/user/qinphy/part";
         Path jPath = new Path(path);

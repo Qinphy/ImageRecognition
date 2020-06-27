@@ -67,6 +67,7 @@ public class BmpController {
             file.transferTo(upFile);
             Bmp bmp = BmpReader.readBmp(filePath);
 
+            bmpService.uploadHDFS(filePath);
             bmpService.insert(bmp);
 
             return fileName;

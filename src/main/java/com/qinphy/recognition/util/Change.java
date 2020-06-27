@@ -1,5 +1,6 @@
 package com.qinphy.recognition.util;
 
+import com.qinphy.recognition.entity.Split;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.ArrayList;
@@ -157,20 +158,23 @@ public class Change {
         return list;
     }
 
-    public static List<byte[]> split(byte[] by, int width, int height, int w, int h) {
-        List<byte[]> list = new ArrayList<byte[]>();
+    public static List<Split> split(byte[] by, int width, int height, int w, int h) {
+        List<Split> list = new ArrayList<Split>();
         width *= 4;
         w *= 4;
 
         for (int i = 0; i < height - h + 1; i++) {
             for (int j = 0; j < width - w + 1; j += 4) {
                 byte[] b = new byte[h * w];
+                int sum = 0;
                 for (int ii = 0; ii < h; ii++) {
                     for (int jj = 0; jj < w; jj++) {
                         b[ii * w + jj] = by[(i + ii) * width + jj + j];
+                        sum += b[ii * w + jj];
                     }
                 }
-                list.add(b);
+                Split s = new Split(b, sum);
+                list.add(s);
             }
         }
         return list;

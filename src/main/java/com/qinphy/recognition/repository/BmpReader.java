@@ -45,10 +45,6 @@ public class BmpReader {
 
         int[][] data = new int[height][width];
 
-        int skiper = 0;
-        if (width * 3 / 4 != 0) {
-            skiper = 4 - width * 3 % 4;
-        }
 
         bis.skip(28);
 
