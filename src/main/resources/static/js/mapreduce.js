@@ -34,7 +34,7 @@ var vm = new Vue({
             } else {
                 axios.get('/partSearch/' + this.upImage + ".bmp")
                     .then(function (response) {
-                        console.log(response.data);
+                        vm.imgUrl = response.data;
                     })
                     .catch(function (error) {
                         console.log(error);

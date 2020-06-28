@@ -100,7 +100,7 @@ public class MapReduce {
         }
     }
 
-    private static class PartMap extends TableMapper<NullWritable, Text> {
+    private static class PartMap extends TableMapper<ImmutableBytesWritable, Text> {
 
         @Override
         public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
@@ -112,24 +112,26 @@ public class MapReduce {
                 if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
                         && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
                     byte[] b = CellUtil.cloneValue(cell);
-
-                    boolean f = Change.split(b, 512, 512, splitWidth, splitHeight, img);
+                    List<Split> list = Change.split(b, 512, 512, splitWidth, splitHeight, leftTop, rightTop, middle, leftBottom, rightBottom);
 
                     String name = Change.changeToString(CellUtil.cloneRow(cell));
-
-                    if (f) {
-                        System.out.println(name);
-                        context.write(NullWritable.get(), new Text(name));
+                    for (int i = 0; i < list.size(); i++) {
+                        Split s = list.get(i);
+                        if (s.getSum() == sum) context.write(new ImmutableBytesWritable(s.getData()), new Text(name));
                     }
                 }
             }
         }
     }
 
-    private static class PartReduce extends Reducer<NullWritable, Text, Text, NullWritable> {
+    private static class PartReduce extends Reducer<ImmutableBytesWritable, Text, Text, NullWritable> {
 
         @Override
-        public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            byte[] data = key.get();
+            for(int i = 0; i < data.length; i++) {
+                if (data[i] != img[i]) return;
+            }
             for (Text text: values) {
                 String fileName = text.toString();
                 System.out.println(fileName);
@@ -171,13 +173,13 @@ public class MapReduce {
         splitHeight = bmp.getHeight();
         img = Change.changeToByte(bmp.getData());
 
-//        int splitWidth2 = splitWidth * 4;
-//        leftTop = img[0];
-//        rightTop = img[splitWidth2 - 1];
-//        middle = img[splitWidth2 * (splitHeight / 2 - 1) + splitWidth2 / 2 - 1];
-//        leftBottom = img[splitWidth2 * (splitHeight - 1)];
-//        rightBottom = img[img.length - 1];
-//
+        int splitWidth2 = splitWidth * 4;
+        leftTop = img[0];
+        rightTop = img[splitWidth2 - 1];
+        middle = img[splitWidth2 * (splitHeight / 2) + splitWidth2 / 2];
+        leftBottom = img[splitWidth2 * (splitHeight - 1)];
+        rightBottom = img[img.length - 1];
+
 //        System.out.println(leftTop + ", " + rightTop + ", " + middle + ", " + leftBottom + ", " + rightBottom);
 
         byte[] bmpData = Change.changeToByte(bmp.getData());

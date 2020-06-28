@@ -118,7 +118,7 @@ public class BmpController {
             String file = list.get(0);
 
             System.out.println(file);
-            return file;
+            return imageUrl + file;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
