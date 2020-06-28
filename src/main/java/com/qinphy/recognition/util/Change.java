@@ -158,23 +158,31 @@ public class Change {
         return list;
     }
 
-    public static List<Split> split(byte[] by, int width, int height, int w, int h) {
+    public static List<Split> split(byte[] by, int width, int height, int w, int h,
+        byte leftTop, byte rightTop, byte middle, byte leftBottom, byte rightBottom) {
         List<Split> list = new ArrayList<Split>();
         width *= 4;
         w *= 4;
 
         for (int i = 0; i < height - h + 1; i++) {
             for (int j = 0; j < width - w + 1; j += 4) {
-                byte[] b = new byte[h * w];
-                int sum = 0;
-                for (int ii = 0; ii < h; ii++) {
-                    for (int jj = 0; jj < w; jj++) {
-                        b[ii * w + jj] = by[(i + ii) * width + jj + j];
-                        sum += b[ii * w + jj];
+                if (leftTop == by[i * width + j]
+                    && rightTop == by[i * width + j + w - 1]
+                    && middle == by[(i + h / 2) * width + j + w / 2]
+                    && leftBottom == by[(i + h - 1) * width + j]
+                    && rightBottom == by[(i + h - 1) * width + j + w - 1]) {
+
+                    byte[] b = new byte[h * w];
+                    int sum = 0;
+                    for (int ii = 0; ii < h; ii++) {
+                        for (int jj = 0; jj < w; jj++) {
+                            b[ii * w + jj] = by[(i + ii) * width + jj + j];
+                            sum += b[ii * w + jj];
+                        }
                     }
+                    Split s = new Split(b, sum);
+                    list.add(s);
                 }
-                Split s = new Split(b, sum);
-                list.add(s);
             }
         }
         return list;

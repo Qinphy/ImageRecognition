@@ -51,6 +51,13 @@ public class MapReduce {
     // PartSearch参数
     private static int sum = 0;
     private static byte[] img;
+    private static int splitWidth;
+    private static int splitHeight;
+    private static byte leftTop;
+    private static byte rightTop;
+    private static byte middle;
+    private static byte leftBottom;
+    private static byte rightBottom;
 
 
     private static class AllMap extends TableMapper<Text, Text> {
@@ -97,8 +104,7 @@ public class MapReduce {
 
         @Override
         public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
-            int splitWidth = bmp.getWidth();
-            int splitHeight = bmp.getHeight();
+
             // String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
             // 遍历表格的每一个单元
             for(Cell cell : value.rawCells()){
@@ -107,7 +113,8 @@ public class MapReduce {
                         && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
                     byte[] b = CellUtil.cloneValue(cell);
 
-                    List<Split> list = Change.split(b, 512, 512, splitWidth, splitHeight);
+                    List<Split> list = Change.split(b, 512, 512, splitWidth, splitHeight,
+                            leftTop, rightTop, middle, leftBottom, rightBottom);
 
                     for(int i = 0; i < list.size(); i++) {
                         Split s= list.get(i);
@@ -164,7 +171,16 @@ public class MapReduce {
     public static String PartSearch(Bmp myBmp) throws IOException, ClassNotFoundException, InterruptedException {
         bmp = myBmp;
         colFamily = "image";
+        splitWidth = bmp.getWidth();
+        splitHeight = bmp.getHeight();
         img = Change.changeToByte(bmp.getData());
+
+        int splitWidth2 = splitWidth * 4;
+        leftTop = img[0];
+        rightTop = img[splitWidth2 - 1];
+        middle = img[splitWidth2 * (splitHeight / 2) + splitWidth2 / 2];
+        leftBottom = img[splitWidth2 * (splitHeight - 1)];
+        rightBottom = img[img.length - 1];
 
         byte[] bmpData = Change.changeToByte(bmp.getData());
         int bmpSum = 0;
