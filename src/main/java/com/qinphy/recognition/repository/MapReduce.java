@@ -143,7 +143,7 @@ public class MapReduce {
         }
     }
 
-    private static class VagueMap extends TableMapper<DoubleWritable, Text> {
+    private static class VagueMap extends TableMapper<IntWritable, Text> {
 
         @Override
         public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
@@ -157,21 +157,22 @@ public class MapReduce {
                     int fenmu = 0;
                     int fenzi = 0;
                     for (int i = 0; i < b.length; i++) {
-                        if (b[i] == img[i]) fenzi++;
+                        if (b[i] == datas[i]) fenzi++;
                         fenmu++;
                     }
-                    double percent = 1.0 * fenzi / fenmu;
+                    int percent = fenzi * 100 / fenmu;
                     String name = Change.changeToString(CellUtil.cloneRow(cell));
-                    context.write(new DoubleWritable(percent), new Text(name));
+
+                    context.write(new IntWritable(percent), new Text(name));
                 }
             }
         }
     }
 
-    private static class VagueReduce extends Reducer<DoubleWritable, Text, Text, NullWritable> {
+    private static class VagueReduce extends Reducer<IntWritable, Text, Text, NullWritable> {
 
         @Override
-        public void reduce(DoubleWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+        public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             for (Text text: values) {
                 context.write(text, NullWritable.get());
             }
@@ -254,7 +255,7 @@ public class MapReduce {
         List<Scan> list = getList();
 
         TableMapReduceUtil.initTableMapperJob(list, VagueMap.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
-        job.setMapOutputKeyClass(DoubleWritable.class);
+        job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(Text.class);
         job.setReducerClass(VagueReduce.class);
         job.setOutputKeyClass(Text.class);

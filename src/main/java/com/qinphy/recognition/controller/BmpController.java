@@ -137,7 +137,7 @@ public class BmpController {
             Bmp bmp = BmpReader.readBmp(filePath);
             List<String> list = bmpService.VagueSearch(bmp);
 
-            String file = list.get(0);
+            String file = list.get(list.size() - 1);
 
             System.out.println(file);
             return imageUrl + file;
