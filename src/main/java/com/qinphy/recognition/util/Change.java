@@ -168,9 +168,9 @@ public class Change {
             for (int j = 0; j < width - w + 1; j += 4) {
                 if (by[i * width + j] != leftTop
                     || by[i * width + j + w - 1] != rightTop
-                    || by[(i + h / 2) * width + j + h / 2] != middle
+                    || by[(i + h / 2 - 1) * width + j + h / 2 - 1] != middle
                     || by[(i + h - 1) * width + j] != leftBottom
-                    || by[(i + h - 1) * width + j + w] != rightBottom) {
+                    || by[(i + h - 1) * width + j + w - 1] != rightBottom) {
                     continue;
                 }
 

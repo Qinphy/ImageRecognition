@@ -176,7 +176,7 @@ public class MapReduce {
         int splitWidth2 = splitWidth * 4;
         leftTop = img[0];
         rightTop = img[splitWidth2 - 1];
-        middle = img[splitWidth2 * (splitHeight / 2) + splitWidth2 / 2];
+        middle = img[splitWidth2 * (splitHeight / 2 - 1) + splitWidth2 / 2 - 1];
         leftBottom = img[splitWidth2 * (splitHeight - 1)];
         rightBottom = img[img.length - 1];
 
