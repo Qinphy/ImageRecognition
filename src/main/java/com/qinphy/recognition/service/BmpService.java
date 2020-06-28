@@ -16,4 +16,5 @@ public interface BmpService {
     String uploadHDFS(String path) throws IOException;
     String AllSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException;
     List<String> PartSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException;
+    List<String> VagueSearch(Bmp bmp) throws IOException, InterruptedException, ClassNotFoundException;
 }

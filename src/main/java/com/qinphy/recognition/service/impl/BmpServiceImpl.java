@@ -94,4 +94,12 @@ public class BmpServiceImpl implements BmpService {
         hadoopFileSystem.rm(hdfs);
         return list;
     }
+
+    @Override
+    public List<String> VagueSearch(Bmp bmp) throws IOException, InterruptedException, ClassNotFoundException {
+        String hdfs = MapReduce.VagueSearch(bmp);
+        List<String> list = hadoopFileSystem.cat(hdfs + "/part-r-00000");
+        hadoopFileSystem.rm(hdfs);
+        return list;
+    }
 }

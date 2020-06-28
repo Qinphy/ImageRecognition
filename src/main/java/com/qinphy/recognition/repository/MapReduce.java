@@ -59,6 +59,9 @@ public class MapReduce {
     private static byte leftBottom;
     private static byte rightBottom;
 
+    // VagueSearch参数
+    private static byte[] datas;
+
 
     private static class AllMap extends TableMapper<Text, Text> {
 
@@ -140,6 +143,41 @@ public class MapReduce {
         }
     }
 
+    private static class VagueMap extends TableMapper<DoubleWritable, Text> {
+
+        @Override
+        public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
+
+            for(Cell cell : value.rawCells()){
+                // 找到对应的单元
+                if (colFamily.equals(Bytes.toString(CellUtil.cloneFamily(cell)))
+                        && col.equals(Bytes.toString(CellUtil.cloneQualifier(cell)))) {
+
+                    byte[] b = CellUtil.cloneValue(cell);
+                    int fenmu = 0;
+                    int fenzi = 0;
+                    for (int i = 0; i < b.length; i++) {
+                        if (b[i] == img[i]) fenzi++;
+                        fenmu++;
+                    }
+                    double percent = 1.0 * fenzi / fenmu;
+                    String name = Change.changeToString(CellUtil.cloneRow(cell));
+                    context.write(new DoubleWritable(percent), new Text(name));
+                }
+            }
+        }
+    }
+
+    private static class VagueReduce extends Reducer<DoubleWritable, Text, Text, NullWritable> {
+
+        @Override
+        public void reduce(DoubleWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+            for (Text text: values) {
+                context.write(text, NullWritable.get());
+            }
+        }
+    }
+
     public static String AllSearch(Bmp myBmp) throws IOException, ClassNotFoundException, InterruptedException {
         bmp = myBmp;
         colFamily = "counter";
@@ -180,8 +218,6 @@ public class MapReduce {
         leftBottom = img[splitWidth2 * (splitHeight - 1)];
         rightBottom = img[img.length - 1];
 
-//        System.out.println(leftTop + ", " + rightTop + ", " + middle + ", " + leftBottom + ", " + rightBottom);
-
         byte[] bmpData = Change.changeToByte(bmp.getData());
         int bmpSum = 0;
         for (int i = 0; i < bmpData.length; i++) {
@@ -206,6 +242,31 @@ public class MapReduce {
         int ex = job.waitForCompletion(true) == true ? 0 : 1;
         System.out.println(ex);
         return path;
+    }
+
+    public static String VagueSearch(Bmp myBmp) throws IOException, ClassNotFoundException, InterruptedException {
+        bmp = myBmp;
+        colFamily = "image";
+        int[][] data = bmp.getData();
+        datas = Change.changeToByte(data);
+
+        Job job = connect();
+        List<Scan> list = getList();
+
+        TableMapReduceUtil.initTableMapperJob(list, VagueMap.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
+        job.setMapOutputKeyClass(DoubleWritable.class);
+        job.setMapOutputValueClass(Text.class);
+        job.setReducerClass(VagueReduce.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(NullWritable.class);
+
+        String hdfsPath = "/user/qinphy/output/vague";
+        Path path = new Path(hdfsPath);
+        FileOutputFormat.setOutputPath(job, path);
+        MultipleOutputs.addNamedOutput(job, "hdfs", TextOutputFormat.class, WritableComparable.class, Writable.class);
+
+        job.waitForCompletion(true);
+        return hdfsPath;
     }
 
     private static Job connect() throws IOException {

@@ -158,6 +158,20 @@ public class Change {
         return list;
     }
 
+    /**
+     * 把图片的byte[]按查找图片拆分成小的byte[]
+     * @param by 源图片的byte[]
+     * @param width 源图片的宽度
+     * @param height 源图片的高度
+     * @param w 拆分的宽度
+     * @param h 拆分的高度
+     * @param leftTop 用于校对的左上角像素
+     * @param rightTop 用于校对的右上角像素
+     * @param middle 用于校对的中间像素
+     * @param leftBottom 用于校对的左下角像素
+     * @param rightBottom 用于校对的右下角像素
+     * @return 小图的byte[]和sum列表
+     */
     public static List<Split> split(byte[] by, int width, int height, int w, int h,
                                 byte leftTop, byte rightTop, byte middle, byte leftBottom, byte rightBottom) {
         List<Split> list = new ArrayList<Split>();

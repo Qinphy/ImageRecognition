@@ -128,4 +128,26 @@ public class BmpController {
         }
         return "fail";
     }
+
+    @RequestMapping("/vagueSearch/{name}")
+    @ResponseBody
+    public String VagueSearch(@PathVariable("name") String name) {
+        String filePath = uploadPath + name;
+        try {
+            Bmp bmp = BmpReader.readBmp(filePath);
+            List<String> list = bmpService.VagueSearch(bmp);
+
+            String file = list.get(0);
+
+            System.out.println(file);
+            return imageUrl + file;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return "fail";
+    }
 }
