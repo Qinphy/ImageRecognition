@@ -42,7 +42,17 @@ var vm = new Vue({
             }
         },
         vagueFun: function () {
-            alert("模糊搜索");
+            if (this.imgName === '') {
+                alert("图片还没上传！")
+            } else {
+                axios.get('/vagueSearch/' + this.upImage + ".bmp")
+                    .then(function (response) {
+                        vm.imgUrl = response.data;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
         },
         successHandler: function (response, file, fileList) {
             this.upImage = response;
