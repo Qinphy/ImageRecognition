@@ -34,31 +34,27 @@ public class BmpReader {
         FileInputStream fis = new FileInputStream(path);
         BufferedInputStream bis = new BufferedInputStream(fis);
         bis.skip(18);
-
-        byte[] a = new byte[4];
-        bis.read(a);
         byte[] b = new byte[4];
         bis.read(b);
+        byte[] b2 = new byte[4];
+        bis.read(b2);
 
-        int width = byteToInt(a);
-        int height = byteToInt(b);
-
+        int width = byteToInt(b);
+        int height = byteToInt(b2);
         int[][] data = new int[height][width];
 
-
-        bis.skip(28);
+        bis.skip(28 + 1024);
 
         int[] counter = new int[256];
-        for(int i = 0; i < counter.length; i++) counter[i] = 0;
+        for (int i = 0; i < 256; i++) counter[i] = 0;
 
         for (int i = 0; i < data.length; i++) {
             for (int j = 0; j < data[i].length; j++) {
-                data[i][j] = bis.read();
-                counter[data[i][j]]++;
+                int color = bis.read();
+                counter[color]++;
+                data[i][j] = color;
             }
         }
-
-        bis.close();
 
         Bmp bmp = new Bmp(name, data, counter, width, height);
         return bmp;

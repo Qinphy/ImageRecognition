@@ -166,18 +166,15 @@ public class Change {
         for (int i = 0; i < height - h + 1; i++) {
             for (int j = 0; j < width - w + 1; j += 4) {
                 byte[] b = new byte[h * w];
-                int sum = 0;
                 boolean f = true;
                 for (int ii = 0; ii < h; ii++) {
                     for (int jj = 0; jj < w; jj++) {
-                        b[ii * w + jj] = by[(i + ii) * width + jj + j];
-                        if (data[ii * w + jj] != b[ii * w + jj]) {
+                        if (data[ii * w + jj] != by[(i + ii) * width + jj + j]) {
                             f = false;
                             break;
                         }
-                        sum += b[ii * w + jj];
                     }
-                    if (f == false) break;
+                    if (!f) break;
                 }
                 if(f) {
                     return true;

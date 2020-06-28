@@ -100,7 +100,7 @@ public class MapReduce {
         }
     }
 
-    private static class PartMap extends TableMapper<ImmutableBytesWritable, Text> {
+    private static class PartMap extends TableMapper<NullWritable, Text> {
 
         @Override
         public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
@@ -119,44 +119,17 @@ public class MapReduce {
 
                     if (f) {
                         System.out.println(name);
-                        context.write(new ImmutableBytesWritable(" ".getBytes()), new Text(name));
+                        context.write(NullWritable.get(), new Text(name));
                     }
-//                    if (name.equals("9.bmp")) {
-//                        System.out.println("list size = " + list.size());
-//                    }
-//                    if (list.size() > 0) {
-//                        System.out.println("size > 0 : " + name);
-//                    }
-//
-//                    for(int i = 0; i < list.size(); i++) {
-//                        Split s= list.get(i);
-//
-////                        if (name.equals("9.bmp")) {
-////                            System.out.println("s.getSum() = " + s.getSum());
-////                            System.out.println("sum = " + sum);
-////                        }
-//
-////                        if (s.getSum() == sum) {
-//                            String fileName = Change.changeToString(CellUtil.cloneRow(cell));
-//
-////                            System.out.println("equal sum is " + fileName);
-//
-//                            context.write(new ImmutableBytesWritable(s.getData()), new Text(fileName));
-////                        }
-//                    }
                 }
             }
         }
     }
 
-    private static class PartReduce extends Reducer<ImmutableBytesWritable, Text, Text, NullWritable> {
+    private static class PartReduce extends Reducer<NullWritable, Text, Text, NullWritable> {
 
         @Override
-        public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            byte[] data = key.get();
-            for (int i = 0; i < data.length; i++) {
-                if (img[i] != data[i]) return;
-            }
+        public void reduce(NullWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             for (Text text: values) {
                 String fileName = text.toString();
                 System.out.println(fileName);
@@ -198,14 +171,14 @@ public class MapReduce {
         splitHeight = bmp.getHeight();
         img = Change.changeToByte(bmp.getData());
 
-        int splitWidth2 = splitWidth * 4;
-        leftTop = img[0];
-        rightTop = img[splitWidth2 - 1];
-        middle = img[splitWidth2 * (splitHeight / 2 - 1) + splitWidth2 / 2 - 1];
-        leftBottom = img[splitWidth2 * (splitHeight - 1)];
-        rightBottom = img[img.length - 1];
-
-        System.out.println(leftTop + ", " + rightTop + ", " + middle + ", " + leftBottom + ", " + rightBottom);
+//        int splitWidth2 = splitWidth * 4;
+//        leftTop = img[0];
+//        rightTop = img[splitWidth2 - 1];
+//        middle = img[splitWidth2 * (splitHeight / 2 - 1) + splitWidth2 / 2 - 1];
+//        leftBottom = img[splitWidth2 * (splitHeight - 1)];
+//        rightBottom = img[img.length - 1];
+//
+//        System.out.println(leftTop + ", " + rightTop + ", " + middle + ", " + leftBottom + ", " + rightBottom);
 
         byte[] bmpData = Change.changeToByte(bmp.getData());
         int bmpSum = 0;
