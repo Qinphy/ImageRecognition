@@ -53,7 +53,6 @@ public class MapReduce {
     // VagueSearch参数
     private static byte[] datas;
 
-
     private static class AllMap extends TableMapper<Text, NullWritable> {
 
         @Override

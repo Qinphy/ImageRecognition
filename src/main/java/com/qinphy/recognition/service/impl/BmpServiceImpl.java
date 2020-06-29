@@ -7,10 +7,8 @@ import com.qinphy.recognition.repository.HadoopFileSystem;
 import com.qinphy.recognition.repository.MapReduce;
 import com.qinphy.recognition.service.BmpService;
 import com.qinphy.recognition.util.Change;
-import org.apache.hadoop.fs.Path;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

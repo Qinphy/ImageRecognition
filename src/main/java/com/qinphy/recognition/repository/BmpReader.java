@@ -1,8 +1,8 @@
 package com.qinphy.recognition.repository;
 
 import com.qinphy.recognition.entity.Bmp;
+import com.qinphy.recognition.util.Change;
 
-import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,14 +13,6 @@ import java.io.IOException;
  * @date: 2020/6/24 8:59
  */
 public class BmpReader {
-    public static int byteToInt(byte[] b) {
-        int tmp1 = b[3] & 0xff;
-        int tmp2 = b[2] & 0xff;
-        int tmp3 = b[1] & 0xff;
-        int tmp4 = b[0] & 0xff;
-        int num = tmp1 << 24 | tmp2 << 16 | tmp3 << 8 | tmp4;
-        return num;
-    }
 
     /**
      * 读取图片
@@ -39,8 +31,8 @@ public class BmpReader {
         byte[] b2 = new byte[4];
         bis.read(b2);
 
-        int width = byteToInt(b);
-        int height = byteToInt(b2);
+        int width = Change.changeToInt(b);
+        int height = Change.changeToInt(b2);
         int[][] data = new int[height][width];
 
         bis.skip(28 + 1024);

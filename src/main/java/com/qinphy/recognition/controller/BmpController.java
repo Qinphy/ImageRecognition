@@ -4,8 +4,6 @@ import com.qinphy.recognition.entity.Bmp;
 import com.qinphy.recognition.entity.Vague;
 import com.qinphy.recognition.repository.BmpReader;
 import com.qinphy.recognition.service.BmpService;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
