@@ -17,4 +17,8 @@ import lombok.Setter;
 public class Vague {
     private String fileName;
     private String rate;
+
+    public String toString() {
+        return fileName + ":" + rate;
+    }
 }

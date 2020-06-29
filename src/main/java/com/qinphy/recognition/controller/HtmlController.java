@@ -21,11 +21,6 @@ public class HtmlController {
         return "mapreduce";
     }
 
-    @RequestMapping("/rdd")
-    public String spark() {
-        return "spark";
-    }
-
     @RequestMapping("/add")
     public String add() {
         return "imgbox";

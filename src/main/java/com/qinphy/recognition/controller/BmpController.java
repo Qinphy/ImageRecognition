@@ -4,6 +4,8 @@ import com.qinphy.recognition.entity.Bmp;
 import com.qinphy.recognition.entity.Vague;
 import com.qinphy.recognition.repository.BmpReader;
 import com.qinphy.recognition.service.BmpService;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +29,6 @@ public class BmpController {
     private BmpService bmpService;
     private final String imgPath = "/home/qinphy/Recognition/images/";
     private final String uploadPath = "/home/qinphy/Recognition/uploads/";
-    private final String imageUrl = "http://192.168.137.120/images/";
 
     /**
      * 上传图片，临时的，/home/qinphy/Recognition/uploads/
@@ -85,14 +86,14 @@ public class BmpController {
      */
     @RequestMapping("/allSearch/{name}")
     @ResponseBody
-    public String AllSaerch(@PathVariable("name") String name) {
+    public String AllSearch(@PathVariable("name") String name) {
         String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
             String file = bmpService.AllSearch(bmp);
             if ("".equals(file)) return "fail";
             else if ("fail".equals(file)) return "fail";
-            else return imageUrl + file;
+            else return file;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -110,13 +111,13 @@ public class BmpController {
      */
     @RequestMapping("/partSearch/{name}")
     @ResponseBody
-    public List<String> PartSearch(@PathVariable("name") String name) {
+    public String PartSearch(@PathVariable("name") String name) {
         String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
             List<String> list = bmpService.PartSearch(bmp);
-
-            return list;
+            if (list.size() == 0) return "fail";
+            return list.get(0);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -124,7 +125,7 @@ public class BmpController {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+        return "fail";
     }
 
     /**
@@ -134,13 +135,17 @@ public class BmpController {
      */
     @RequestMapping("/vagueSearch/{name}")
     @ResponseBody
-    public List<Vague> VagueSearch(@PathVariable("name") String name) {
+    public String VagueSearch(@PathVariable("name") String name) {
         String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
             List<Vague> list = bmpService.VagueSearch(bmp);
-
-            return list;
+            String answer = "";
+            for (int i = 0; i < 3; i++) {
+                if (i != 0) answer += ',';
+                answer += list.get(i).toString();
+            }
+            return answer;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -148,6 +153,6 @@ public class BmpController {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+        return "fail";
     }
 }

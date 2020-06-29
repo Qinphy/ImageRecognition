@@ -44,13 +44,14 @@ body, html {
 .result-img {
     width: 512px;
     height: 512px;
-    margin-left: 100px;
+    margin-left: 160px;
     border: 1px solid #373737;
 }
 
 .btn_box {
     width: 200px;
-    margin: 50px auto;
+    padding: 30px;
+    margin: 0 auto;
     align-items: center;
 }
 

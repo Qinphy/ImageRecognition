@@ -22,30 +22,35 @@
                 <div class="el-upload__tip" slot="tip">只能上传bmp文件，且不超过500kb</div>
             </el-upload>
         </div>
-        <div class="btn_box">
-            <el-row>
-                <el-button type="primary" @click="allFun" round plain>全图搜索</el-button>
-            </el-row>
-        </div>
-        <div class="btn_box">
-            <el-row>
-                <el-button type="success" @click="partFun" round plain>局部搜索</el-button>
-            </el-row>
-        </div>
-        <div class="btn_box">
-            <el-row>
-                <el-button type="warning" @click="vagueFun" round plain>模糊搜索</el-button>
-            </el-row>
-        </div>
-        <div class="btn_box">
-            <div v-if="nextPart">
+        <div v-if="mainFun">
+            <div class="btn_box">
                 <el-row>
-                    <el-button type="error" @click="nextPartFun" round plain>下一个</el-button>
+                    <el-button type="primary" @click="allFun" round plain>全图搜索</el-button>
                 </el-row>
             </div>
+            <div class="btn_box">
+                <el-row>
+                    <el-button type="success" @click="partFun" round plain>局部搜索</el-button>
+                </el-row>
+            </div>
+            <div class="btn_box">
+                <el-row>
+                    <el-button type="warning" @click="vagueFun" round plain>模糊搜索</el-button>
+                </el-row>
+            </div>
+        </div>
+
+        <div class="btn_box">
             <div v-if="nextVague">
                 <el-row>
-                    <el-button type="error" @click="nextVagueFun" round plain>下一个</el-button>
+                    <el-button type="primary" @click="nextVagueFun" round plain>下一个</el-button>
+                </el-row>
+            </div>
+        </div>
+        <div class="btn_box">
+            <div v-if="reload">
+                <el-row>
+                    <el-button type="primary" @click="reloadFun" round plain>刷新</el-button>
                 </el-row>
             </div>
         </div>
