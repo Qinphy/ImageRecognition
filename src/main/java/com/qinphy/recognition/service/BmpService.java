@@ -1,6 +1,7 @@
 package com.qinphy.recognition.service;
 
 import com.qinphy.recognition.entity.Bmp;
+import com.qinphy.recognition.entity.Vague;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,5 +17,5 @@ public interface BmpService {
     String uploadHDFS(String path) throws IOException;
     String AllSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException;
     List<String> PartSearch(Bmp bmp) throws InterruptedException, IOException, ClassNotFoundException;
-    List<String> VagueSearch(Bmp bmp) throws IOException, InterruptedException, ClassNotFoundException;
+    List<Vague> VagueSearch(Bmp bmp) throws IOException, InterruptedException, ClassNotFoundException;
 }

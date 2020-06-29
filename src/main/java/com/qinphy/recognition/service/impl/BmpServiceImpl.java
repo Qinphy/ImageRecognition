@@ -1,6 +1,7 @@
 package com.qinphy.recognition.service.impl;
 
 import com.qinphy.recognition.entity.Bmp;
+import com.qinphy.recognition.entity.Vague;
 import com.qinphy.recognition.repository.HBase;
 import com.qinphy.recognition.repository.HadoopFileSystem;
 import com.qinphy.recognition.repository.MapReduce;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -96,10 +98,20 @@ public class BmpServiceImpl implements BmpService {
     }
 
     @Override
-    public List<String> VagueSearch(Bmp bmp) throws IOException, InterruptedException, ClassNotFoundException {
+    public List<Vague> VagueSearch(Bmp bmp) throws IOException, InterruptedException, ClassNotFoundException {
         String hdfs = MapReduce.VagueSearch(bmp);
         List<String> list = hadoopFileSystem.cat(hdfs + "/part-r-00000");
+
+        List<Vague> vags = new ArrayList<>();
+
+        for (int i = list.size() - 1; i > list.size() - 10; i--) {
+            String line = list.get(i);
+            String[] parts = line.split("\t");
+            Vague vague = new Vague(parts[0], parts[1]);
+            vags.add(vague);
+        }
+
         hadoopFileSystem.rm(hdfs);
-        return list;
+        return vags;
     }
 }

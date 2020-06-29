@@ -1,6 +1,7 @@
 package com.qinphy.recognition.controller;
 
 import com.qinphy.recognition.entity.Bmp;
+import com.qinphy.recognition.entity.Vague;
 import com.qinphy.recognition.repository.BmpReader;
 import com.qinphy.recognition.service.BmpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,16 +110,13 @@ public class BmpController {
      */
     @RequestMapping("/partSearch/{name}")
     @ResponseBody
-    public String PartSearch(@PathVariable("name") String name) {
+    public List<String> PartSearch(@PathVariable("name") String name) {
         String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
             List<String> list = bmpService.PartSearch(bmp);
 
-            String file = list.get(0);
-
-            System.out.println(file);
-            return imageUrl + file;
+            return list;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -126,21 +124,23 @@ public class BmpController {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return "fail";
+        return null;
     }
 
+    /**
+     * 图像篡改搜索
+     * @param name 上传图片
+     * @return 搜索结果列表，(fileName, rate)
+     */
     @RequestMapping("/vagueSearch/{name}")
     @ResponseBody
-    public String VagueSearch(@PathVariable("name") String name) {
+    public List<Vague> VagueSearch(@PathVariable("name") String name) {
         String filePath = uploadPath + name;
         try {
             Bmp bmp = BmpReader.readBmp(filePath);
-            List<String> list = bmpService.VagueSearch(bmp);
+            List<Vague> list = bmpService.VagueSearch(bmp);
 
-            String file = list.get(list.size() - 1);
-
-            System.out.println(file);
-            return imageUrl + file;
+            return list;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -148,6 +148,6 @@ public class BmpController {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return "fail";
+        return null;
     }
 }

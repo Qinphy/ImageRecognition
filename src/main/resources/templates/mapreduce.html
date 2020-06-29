@@ -37,9 +37,21 @@
                 <el-button type="warning" @click="vagueFun" round plain>模糊搜索</el-button>
             </el-row>
         </div>
+        <div class="btn_box">
+            <div v-if="nextPart">
+                <el-row>
+                    <el-button type="error" @click="nextPartFun" round plain>下一个</el-button>
+                </el-row>
+            </div>
+            <div v-if="nextVague">
+                <el-row>
+                    <el-button type="error" @click="nextVagueFun" round plain>下一个</el-button>
+                </el-row>
+            </div>
+        </div>
     </div>
     <div class="result">
-        <div class="title">查找结果：</div>
+        <div class="title">查找结果：{{ result }}</div>
         <img class="result-img" :src='imgUrl'/>
     </div>
 </div>

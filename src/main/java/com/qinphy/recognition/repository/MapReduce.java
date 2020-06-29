@@ -15,22 +15,13 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -63,7 +54,7 @@ public class MapReduce {
     private static byte[] datas;
 
 
-    private static class AllMap extends TableMapper<Text, Text> {
+    private static class AllMap extends TableMapper<Text, NullWritable> {
 
         @Override
         public void map(ImmutableBytesWritable key, Result value, Context context) throws IOException, InterruptedException {
@@ -86,20 +77,18 @@ public class MapReduce {
                     if (f) {
                         byte[] a = CellUtil.cloneRow(cell);
                         String name = Change.changeToString(a);
-                        context.write(new Text(""), new Text(name));
+                        context.write(new Text(name), NullWritable.get());
                     }
                 }
             }
         }
     }
 
-    private static class AllReduce extends Reducer<Text, Text, Text, Text> {
+    private static class AllReduce extends Reducer<Text, NullWritable, Text, NullWritable> {
 
         @Override
-        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            for (Text text: values) {
-                context.write(new Text(""), text);
-            }
+        public void reduce(Text key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
+            context.write(key, NullWritable.get());
         }
     }
 
@@ -169,12 +158,12 @@ public class MapReduce {
         }
     }
 
-    private static class VagueReduce extends Reducer<IntWritable, Text, Text, NullWritable> {
+    private static class VagueReduce extends Reducer<IntWritable, Text, IntWritable, Text> {
 
         @Override
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             for (Text text: values) {
-                context.write(text, NullWritable.get());
+                context.write(key, text);
             }
         }
     }
@@ -190,10 +179,10 @@ public class MapReduce {
 
         TableMapReduceUtil.initTableMapperJob(list, AllMap.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
+        job.setMapOutputValueClass(NullWritable.class);
         job.setReducerClass(AllReduce.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(NullWritable.class);
 
         String hdfsPath = "/user/qinphy/output/all";
         Path path = new Path(hdfsPath);
@@ -258,8 +247,8 @@ public class MapReduce {
         job.setMapOutputKeyClass(IntWritable.class);
         job.setMapOutputValueClass(Text.class);
         job.setReducerClass(VagueReduce.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(NullWritable.class);
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
 
         String hdfsPath = "/user/qinphy/output/vague";
         Path path = new Path(hdfsPath);
